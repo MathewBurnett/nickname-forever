@@ -21,6 +21,9 @@ local issecret = ns.issecret
 local resolvers = setmetatable({}, { __mode = "k" }) -- fs -> function(fs) return unit
 local category  = setmetatable({}, { __mode = "k" }) -- fs -> settings key
 local original  = setmetatable({}, { __mode = "k" }) -- fs -> owner's last text
+local shown     = setmetatable({}, { __mode = "k" }) -- fs -> text we last wrote over it
+local shownKey  = setmetatable({}, { __mode = "k" }) -- fs -> unit key that text was for
+local blanked   = setmetatable({}, { __mode = "k" }) -- fs -> original before the owner blanked it
 local writing = false
 
 local SURNAME_SEP = (Constants and Constants.CharacterNameSeparatorConsts
@@ -31,7 +34,8 @@ local function IsWordByte(b)
     return b and (b >= 128 or (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122))
 end
 
-local function FindWhole(text, needle)
+-- avoidS..avoidE: a span to skip (the nickname itself, already in the text).
+local function FindWhole(text, needle, avoidS, avoidE)
     if not needle or needle == "" then return nil end
     local init = 1
     while true do
@@ -44,7 +48,8 @@ local function FindWhole(text, needle)
             or before:find("|c%x%x%x%x%x%x%x%x$") or before:find("|cn[^:|]*:$") or before:find("|r$")
         local after = text:sub(e + 1, e + 2)
         local rightOK = not IsWordByte(text:byte(e + 1)) or after == "|r"
-        if leftOK and rightOK then
+        local inside = avoidS and s <= avoidE and e >= avoidS
+        if leftOK and rightOK and not inside then
             return s, e
         end
         init = e + 1
@@ -62,8 +67,11 @@ function ns.ReplaceName(text, nick, first, raw, second, keepName)
     end
     if raw and raw ~= first then candidates[#candidates + 1] = raw end
     candidates[#candidates + 1] = first
+    -- A nickname that contains the name ("Little Siren") is never replaced
+    -- inside itself, so applying twice changes nothing.
+    local ns_, ne_ = FindWhole(text, nick)
     for i = 1, #candidates do
-        local s, e = FindWhole(text, candidates[i])
+        local s, e = FindWhole(text, candidates[i], ns_, ne_)
         if s then
             local found = text:sub(s, e)
             local rep = (keepName and found ~= nick) and (nick .. " (" .. found .. ")") or nick
@@ -101,8 +109,9 @@ function ns.ReplaceKnownNames(text)
     if #list == 0 then return text end
     for i = 1, #list do
         local k = list[i]
-        local s, e = FindWhole(text, k.full)
-        if not s and k.firstUnique and k.first ~= k.full then s, e = FindWhole(text, k.first) end
+        local ns_, ne_ = FindWhole(text, k.nick)
+        local s, e = FindWhole(text, k.full, ns_, ne_)
+        if not s and k.firstUnique and k.first ~= k.full then s, e = FindWhole(text, k.first, ns_, ne_) end
         if s then
             -- one name per text: stop so a nickname is never re-replaced
             return text:sub(1, s - 1) .. k.nick .. text:sub(e + 1)
@@ -113,19 +122,33 @@ end
 
 local TEXT = "text" -- resolver marker for text-only FontStrings
 
+-- The unit key the FontString shows now (nil for text-only ones).
+local function CurrentKey(fs)
+    local resolver = resolvers[fs]
+    if resolver == TEXT or not resolver then return nil end
+    local unit = resolver(fs)
+    return unit and ns.UnitKey(unit) or nil
+end
+
 local function Apply(fs, text)
     if type(text) ~= "string" or issecret(text) then return end
-    local want = text
+    local want, key = text, nil
     if N:GetSetting(category[fs]) then
         local resolver = resolvers[fs]
         local unit = resolver ~= TEXT and resolver and resolver(fs)
         if resolver == TEXT then
             want = ns.ReplaceKnownNames(text)
         elseif unit then
-            local key, _, first, _, raw, second = ns.UnitKey(unit)
+            local first, raw, second
+            key, _, first, _, raw, second = ns.UnitKey(unit)
             local nick = key and N:GetForUnit(unit)
             if nick then want = ns.ReplaceName(text, nick, first, raw, second) end
         end
+    end
+    if want ~= text then
+        shown[fs], shownKey[fs] = want, key
+    else
+        shown[fs], shownKey[fs] = nil, nil
     end
     local cur = fs:GetText()
     if issecret(cur) or cur == want then return end
@@ -138,9 +161,27 @@ local function OnOwnerSetText(fs)
     if writing then return end
     local text = fs:GetText()
     if type(text) ~= "string" or issecret(text) then
-        original[fs] = nil
+        original[fs], shown[fs], blanked[fs] = nil, nil, nil
         return
     end
+    local mine = shown[fs]
+    if mine and text == mine and shownKey[fs] == CurrentKey(fs) then
+        -- The owner wrote our own text back: some addons (EllesmereUI
+        -- nameplates) re-lay out a name by re-setting GetText(), often after
+        -- a blank. Keep the real name underneath, so a nickname change or
+        -- removal still finds it.
+        if blanked[fs] then original[fs] = blanked[fs] end
+        blanked[fs] = nil
+        Apply(fs, original[fs])
+        return
+    end
+    if text == "" and mine then
+        -- May be the first half of a re-layout: remember what was under it.
+        if original[fs] ~= "" then blanked[fs] = original[fs] end
+        original[fs] = ""
+        return
+    end
+    shown[fs], shownKey[fs], blanked[fs] = nil, nil, nil
     original[fs] = text
     Apply(fs, text)
 end
@@ -186,8 +227,58 @@ function ns.IsHooked(fs) return resolvers[fs] ~= nil end
 function ns.RefreshDisplay()
     for fs in pairs(resolvers) do
         local text = original[fs]
-        if text then Apply(fs, text) end
+        if text and text ~= "" then Apply(fs, text) end
     end
+end
+
+-- /nick debug: the unit's hooked name texts (nameplate and unit frames) and
+-- every name text on its nameplate, hooked or not, with
+-- what the owner last wrote and what we wrote over it ("|" shown as "!").
+function ns.NameplateReport(unit)
+    local lines, seen = {}, {}
+    local function vis(x)
+        if x == nil then return "nil" end
+        if issecret(x) then return "<secret>" end
+        return (tostring(x):gsub("|", "!"))
+    end
+    local function same(u)
+        if type(u) ~= "string" or issecret(u) then return false end
+        local ok, r = pcall(UnitIsUnit, u, unit)
+        return ok and not issecret(r) and r == true
+    end
+    local function report(fs, where)
+        if seen[fs] or #lines >= 12 then return end
+        seen[fs] = true
+        local res = resolvers[fs]
+        local u = res and res ~= TEXT and res(fs)
+        lines[#lines + 1] = ("  %s: hooked=%s unit=%s  owner=[%s]  ours=[%s]  now=[%s]"):format(
+            where, res and "yes" or "no", vis(u),
+            vis(original[fs]), vis(shown[fs]), vis(fs:GetText()))
+    end
+    for fs, res in pairs(resolvers) do
+        if res ~= TEXT and not (fs.IsForbidden and fs:IsForbidden()) and same(res(fs)) then
+            report(fs, category[fs] == "nameplates" and "nameplate" or "unit frame")
+        end
+    end
+    local np = C_NamePlate and C_NamePlate.GetNamePlateForUnit and C_NamePlate.GetNamePlateForUnit(unit)
+    if not np or (np.IsForbidden and np:IsForbidden()) then
+        lines[#lines + 1] = "  no nameplate shown for " .. unit
+        return lines
+    end
+    local function walk(frame, depth)
+        if not frame or (frame.IsForbidden and frame:IsForbidden()) then return end
+        for _, r in ipairs({ frame:GetRegions() }) do
+            if IsFontString(r) then
+                local t = r:GetText()
+                if resolvers[r] or (type(t) == "string" and not issecret(t) and t:find("%a")) then report(r, "plate") end
+            end
+        end
+        if depth > 0 then
+            for _, c in ipairs({ frame:GetChildren() }) do walk(c, depth - 1) end
+        end
+    end
+    walk(np, 6)
+    return lines
 end
 
 -------------------------------------------------------------------------------

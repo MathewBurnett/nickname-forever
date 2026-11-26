@@ -27,6 +27,10 @@ function ns.Debug()
     if UnitExists("target") then
         local tk, td = ns.UnitKey("target")
         P("target key = [%s] display = [%s] nickname = [%s]", esc(tk), esc(td), esc(N:GetForUnit("target")))
+        if ns.NameplateReport then
+            P("target name texts (nameplates setting %s):", N:GetSetting("nameplates") and "on" or "off")
+            for _, line in ipairs(ns.NameplateReport("target")) do P("%s", line) end
+        end
     end
     local count = 0
     for k, e in N:Iterate() do

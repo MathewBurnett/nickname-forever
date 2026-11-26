@@ -1,5 +1,11 @@
 # Nickname Forever
 
+## Unreleased
+
+- Fixed nameplates showing the real name after changing a nickname. EllesmereUI redraws a plate's name by writing back the current text, and the addon mistook that for the real name.
+- Fixed a nickname that contains the player's name (e.g. "Little Siren") repeating on each redraw.
+- `/nick debug` now lists the name texts on your target's nameplate and unit frames.
+
 ## 1.0.0-beta1
 
 First public beta.
