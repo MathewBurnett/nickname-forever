@@ -37,8 +37,8 @@ Game versions are detected from `## Interface:` in `NicknameForever.toc`
 
 ## One-time setup
 
-- **CurseForge project ID:** add `## X-Curse-Project-ID: <id>` to
-  `NicknameForever/NicknameForever.toc`.
+- **CurseForge project ID:** `## X-Curse-Project-ID: 1833014` in
+  `NicknameForever/NicknameForever.toc` (done).
 - **CurseForge API token:** create one at
   <https://authors.curseforge.com/#/settings/api-tokens> and add it to this repo
   as the Actions secret `CF_API_TOKEN` (Settings → Secrets and variables →

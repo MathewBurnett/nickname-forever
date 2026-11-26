@@ -187,4 +187,4 @@ CN.RegisterCallback("MyAddon", "Name_Update", function(...) end)  -- also Name_A
 
 ## License
 
-All rights reserved unless a license file is included.
+[MIT](LICENSE) © 2026 Mathew Burnett

@@ -4,6 +4,7 @@
 ## Author: MathewBurnett
 ## Version: @project-version@
 ## X-Website: https://github.com/MathewBurnett/nickname-forever
+## X-License: MIT
 ## Dependencies: NicknameForever
 
 CustomNames.lua
