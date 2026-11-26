@@ -1,10 +1,24 @@
-# Nickname Forever
+# <img src="https://raw.githubusercontent.com/MathewBurnett/nickname-forever/main/art/icon-400.png" alt="" width="40" align="top"> Nickname Forever
 
 Give any player a nickname. Right-click them, choose **Set Nickname...**, and from then on the nickname shows wherever their name normally would: nameplates, chat, unit frames, tooltips, damage meters and the guild roster.
 
 The nickname is only seen by you, and other players are not affected. Nicknames are saved per account, so every character you play sees the same list.
 
 Built for **WoW Forever**, including its two-part "First Surname" character names. It also works on the Retail client.
+
+## Screenshots
+
+**Tooltips** show the nickname, with the real name alongside if you like:
+
+![Player tooltip showing "Proto (Proto Col)"](https://raw.githubusercontent.com/MathewBurnett/nickname-forever/main/art/screenshots/tooltip-nickname-name.png)
+
+**Unit frames** show the nickname, here on an EllesmereUI player frame:
+
+![EllesmereUI player frame showing the nickname "Proto"](https://raw.githubusercontent.com/MathewBurnett/nickname-forever/main/art/screenshots/unit-frame-ellesmereui.png)
+
+**The `/nick` window**: choose where nicknames appear, add one by name and manage your list:
+
+![The Nickname Forever options window](https://raw.githubusercontent.com/MathewBurnett/nickname-forever/main/art/screenshots/options-window.png)
 
 ---
 
