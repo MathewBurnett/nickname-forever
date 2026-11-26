@@ -28,8 +28,14 @@ jobs:
         uses: BigWigsMods/packager@v2
         with:
           args: -d
-      - name: Keep the zip
+      # The artifact download unzips to the two addon folders, ready to drop
+      # into Interface/AddOns. (.release is hidden, hence include-hidden-files.)
+      - name: Keep the build
         uses: actions/upload-artifact@v7
         with:
           name: NicknameForever-build
-          path: .release/*.zip
+          include-hidden-files: true
+          if-no-files-found: error
+          path: |
+            .release/NicknameForever
+            .release/CustomNames

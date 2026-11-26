@@ -17,3 +17,4 @@ ignore:
   - tests
   - README.md
   - CHANGELOG.md
+  - RELEASING.md
