@@ -1,0 +1,35 @@
+# Runs on every push and pull request: tests, then a packaged test build
+# (no upload) so you can download the exact zip a release would produce.
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Lua 5.1 (the game's Lua)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.1
+      - name: Run tests
+        run: tests/run.sh
+
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Package (no upload)
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -d
+      - name: Keep the zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: NicknameForever-build
+          path: .release/*.zip

@@ -1,0 +1,19 @@
+# BigWigs packager config: https://github.com/BigWigsMods/packager
+# The zip holds two addon folders side by side:
+#   NicknameForever/  - the addon
+#   CustomNames/      - bridge that lets EllesmereUI etc. read the nicknames
+package-as: NicknameForever
+
+move-folders:
+  NicknameForever/NicknameForever: NicknameForever
+  NicknameForever/CustomNames: CustomNames
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - art
+  - tests
+  - README.md
+  - CHANGELOG.md

@@ -1,0 +1,35 @@
+# Push a version tag to release:  git tag 1.0.0-beta2 && git push origin 1.0.0-beta2
+#   tag contains "alpha" -> alpha file, "beta" -> beta file, otherwise -> release.
+# Uploads to CurseForge (needs the CF_API_TOKEN secret and X-Curse-Project-ID in
+# the TOC) and creates a GitHub release with the zip attached.
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write # create the GitHub release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # tags + history for the version and changelog
+
+      - name: Install Lua 5.1
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.1
+      - name: Run tests
+        run: tests/run.sh
+
+      - name: Package and upload
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional extra sites; add the secret and the ID line to the TOC:
+          # WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}   (## X-Wago-ID)
+          # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}   (## X-WoWI-ID)

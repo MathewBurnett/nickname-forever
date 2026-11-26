@@ -1,0 +1,24 @@
+## Interface: 16001, 120100, 120105
+## Title: Nickname Forever
+## Notes: Right-click a player to give them a nickname. Shows on nameplates, chat, unit frames, tooltips, damage meters and the guild roster.
+## Author: MathewBurnett
+## Version: @project-version@
+## X-Website: https://github.com/MathewBurnett/nickname-forever
+## SavedVariables: NicknamesDB
+## IconTexture: Interface\AddOns\NicknameForever\Media\Icon
+## AddonCompartmentFunc: NicknameForever_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: NicknameForever_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: NicknameForever_OnAddonCompartmentLeave
+
+Libs\LibStub.lua
+Core.lua
+Display.lua
+Chat.lua
+Menu.lua
+Extra.lua
+Frames.lua
+Tooltip.lua
+Minimap.lua
+Info.lua
+Options.lua
+Debug.lua

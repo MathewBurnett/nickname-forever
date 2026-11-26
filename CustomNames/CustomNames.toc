@@ -1,0 +1,9 @@
+## Interface: 16001, 120100, 120105
+## Title: Nickname Forever |cff888888(CustomNames bridge)|r
+## Notes: Lets EllesmereUI (and other addons that support CustomNames) show your nicknames. Needs the Nickname Forever addon.
+## Author: MathewBurnett
+## Version: @project-version@
+## X-Website: https://github.com/MathewBurnett/nickname-forever
+## Dependencies: NicknameForever
+
+CustomNames.lua
