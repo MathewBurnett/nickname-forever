@@ -15,8 +15,8 @@ to try the exact files a release would contain.
 2. Tag the commit with the version and push the tag:
 
    ```sh
-   git tag 1.0.0-beta2
-   git push origin 1.0.0-beta2
+   git tag 1.0.1
+   git push origin 1.0.1
    ```
 
 The tag name becomes the version (`## Version: @project-version@` in the TOCs)

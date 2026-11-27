@@ -1,0 +1,39 @@
+name: Bug report
+description: Something isn't working, e.g. a nickname not showing somewhere.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected to see, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where and when
+      description: Which place (nameplate, chat, unit frame, tooltip, damage meter, guild roster), and what you were doing (in combat, in a dungeon, just logged in...).
+    validations:
+      required: true
+  - type: textarea
+    id: debug
+    attributes:
+      label: /nick debug output
+      description: Type `/nick debug` in game (target the player if it's about them) and paste the result.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Nickname Forever version
+      description: Shown on the info page (the "i" button in the /nick window).
+  - type: dropdown
+    id: client
+    attributes:
+      label: Game client
+      options: [WoW Forever, Retail]
+  - type: textarea
+    id: addons
+    attributes:
+      label: UI addons
+      description: e.g. EllesmereUI, ElvUI, Cell, Details!, and any nameplate or chat addons.

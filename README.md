@@ -6,6 +6,8 @@ The nickname is only seen by you, and other players are not affected. Nicknames 
 
 Built for **WoW Forever**, including its two-part "First Surname" character names. It also works on the Retail client.
 
+**Found a bug or have an idea?** [Raise an issue on GitHub](https://github.com/MathewBurnett/nickname-forever/issues/new/choose).
+
 ## Screenshots
 
 **Tooltips** show the nickname, with the real name alongside if you like:
@@ -164,7 +166,7 @@ Nickname Forever only does work when the game or another addon draws a name, and
 
 ## Feedback and issues
 
-Found a bug or have an idea? Please [raise an issue on GitHub](https://github.com/MathewBurnett/nickname-forever/issues).
+Found a bug or have an idea? Please [raise an issue on GitHub](https://github.com/MathewBurnett/nickname-forever/issues/new/choose).
 
 When reporting a bug, include the output of `/nick debug` and what you were doing at the time.
 

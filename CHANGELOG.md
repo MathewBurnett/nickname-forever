@@ -1,5 +1,12 @@
 # Nickname Forever
 
+## 1.0.0
+
+First stable release.
+
+- Report bugs and ideas on GitHub: https://github.com/MathewBurnett/nickname-forever/issues
+- Everything from the betas below, with no changes since 1.0.0-beta2.
+
 ## 1.0.0-beta2
 
 - Fixed nameplates showing the real name after changing a nickname. EllesmereUI redraws a plate's name by writing back the current text, and the addon mistook that for the real name.
